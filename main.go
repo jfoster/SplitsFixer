@@ -1,9 +1,9 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
-	"os"
 	"sort"
 	"time"
 )
@@ -13,13 +13,12 @@ const (
 )
 
 func main() {
-	args := os.Args[1:]
-	if len(args) != 1 {
-		log.Fatal(fmt.Errorf("Incorrect number of arguments specified"))
+	flag.Parse()
+	if flag.NArg() != 1 {
+		log.Fatalln(fmt.Errorf("Incorrect number of arguments. Expected: 1 Recieved: %d", flag.NArg()))
 	}
 
-	lss := NewLSS()
-	err := lss.ReadFile(args[0])
+	lss, err := NewLSSFromFile(flag.Args()[0])
 	if err != nil {
 		log.Fatal(err)
 	}

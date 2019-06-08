@@ -33,9 +33,9 @@ type Run struct {
 		Reset          bool
 		Split          bool
 		CustomSettings []struct {
-			ID    int64  `xml:"id,attr"`
+			ID    string `xml:"id,attr"`
 			Type  string `xml:"type,attr"`
-			Value bool   `xml:",chardata"`
+			Value string `xml:",chardata"`
 		} `xml:"CustomSettings>Setting"`
 	}
 }
