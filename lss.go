@@ -4,7 +4,6 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"regexp"
 )
 
@@ -13,14 +12,27 @@ type LSS struct {
 }
 
 func NewLSS() LSS {
-	lss := LSS{}
-	return lss
+	return LSS{}
 }
 
-func (lss LSS) WriteFile() {
+func (lss LSS) ReadFile(filename string) error {
+	data, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return err
+	}
+
+	err = xml.Unmarshal(data, &lss.Run)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (lss LSS) WriteFile() error {
 	data, err := xml.MarshalIndent(lss.Run, "", "  ")
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	// prepend xml header to data
@@ -28,13 +40,15 @@ func (lss LSS) WriteFile() {
 
 	reg, err := regexp.Compile("[\\\\/:*?\"<>|]")
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	fileName := fmt.Sprintf("%s - %s.lss", lss.Run.GameName, lss.Run.CategoryName)
 
 	err = ioutil.WriteFile(reg.ReplaceAllString(fileName, ""), data, 0644)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
+
+	return nil
 }

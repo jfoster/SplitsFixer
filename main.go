@@ -1,9 +1,7 @@
 package main
 
 import (
-	"encoding/xml"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"sort"
@@ -15,18 +13,16 @@ const (
 )
 
 func main() {
-	lss := NewLSS()
-
 	args := os.Args[1:]
 	if len(args) != 1 {
 		log.Fatal(fmt.Errorf("Incorrect number of arguments specified"))
 	}
 
-	data, err := ioutil.ReadFile(args[0])
+	lss := NewLSS()
+	err := lss.ReadFile(args[0])
 	if err != nil {
 		log.Fatal(err)
 	}
-	xml.Unmarshal(data, &lss.Run)
 
 	sort.SliceStable(lss.Run.AttemptHistory, func(a, b int) bool {
 		timeA, _ := time.Parse(layout, lss.Run.AttemptHistory[a].Started)
@@ -85,11 +81,11 @@ func main() {
 		attemptHistory[a].ID = attemptNum
 	}
 
+	lss.Run.AttemptCount = attemptHistory[len(attemptHistory)-1].ID
 	lss.Run.AttemptHistory = attemptHistory
 
-	attemptCount := lss.Run.AttemptHistory[len(lss.Run.AttemptHistory)-1].ID
-	lss.Run.AttemptCount = attemptCount
-	fmt.Println(attemptCount)
-
-	lss.WriteFile()
+	err = lss.WriteFile()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
