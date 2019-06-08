@@ -18,14 +18,13 @@ func NewLSS() LSS {
 }
 
 func (lss LSS) WriteFile() {
-	data := []byte(xml.Header)
-
-	d, err := xml.MarshalIndent(lss.Run, "", "  ")
+	data, err := xml.MarshalIndent(lss.Run, "", "  ")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	data = append(data, d...)
+	// prepend xml header to data
+	data = append([]byte(xml.Header), data...)
 
 	reg, err := regexp.Compile("[\\\\/:*?\"<>|]")
 	if err != nil {
