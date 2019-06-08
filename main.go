@@ -19,7 +19,7 @@ func main() {
 
 	args := os.Args[1:]
 	if len(args) != 1 {
-		log.Fatal(fmt.Errorf("Incorrect number of arguments specied"))
+		log.Fatal(fmt.Errorf("Incorrect number of arguments specified"))
 	}
 
 	data, err := ioutil.ReadFile(args[0])
