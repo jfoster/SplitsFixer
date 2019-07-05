@@ -18,7 +18,7 @@ func main() {
 		log.Fatalln(fmt.Errorf("Incorrect number of arguments. Expected: 1 Recieved: %d", flag.NArg()))
 	}
 
-	lss, err := NewLSSFromFile(flag.Args()[0])
+	lss, err := NewLSSFile(flag.Args()[0])
 	if err != nil {
 		log.Fatal(err)
 	}
