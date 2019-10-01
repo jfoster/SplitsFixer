@@ -3,13 +3,13 @@ package lss
 import (
 	"encoding/xml"
 	"fmt"
-	"io/ioutil"
-	"path/filepath"
 	"regexp"
+
+	"github.com/jfoster/file"
 )
 
 var (
-	origFile string
+	origFile file.File
 )
 
 // LSS type
@@ -17,23 +17,17 @@ type LSS struct {
 	Run Run
 }
 
-// NewLSS creates an empty LSS object
-func NewLSS() LSS {
-	return LSS{}
-}
-
 // NewLSSFile creates an LSS object from a file
-func NewLSSFile(filename string) (LSS, error) {
-	lss := NewLSS()
-	err := lss.ReadFile(filename)
+func New(filename string) (lss LSS, err error) {
+	err = lss.ReadFile(file.New(filename))
 	return lss, err
 }
 
 // ReadFile reads from a file into LSS object
-func (lss *LSS) ReadFile(filename string) error {
-	origFile = filename
+func (lss *LSS) ReadFile(f file.File) error {
+	origFile = f
 
-	data, err := ioutil.ReadFile(filename)
+	data, err := f.Read()
 	if err != nil {
 		return err
 	}
@@ -56,15 +50,12 @@ func (lss *LSS) WriteFile() error {
 	// prepend xml header to data
 	data = append([]byte(xml.Header), data...)
 
-	reg, err := regexp.Compile("[\\\\/:*?\"<>|]")
-	if err != nil {
-		return err
-	}
+	reg := regexp.MustCompile("[\\\\/:*?\"<>|]")
+	newFileName := reg.ReplaceAllString(fmt.Sprintf("%s - %s", lss.Run.GameName, lss.Run.CategoryName), "")
 
-	fileName := reg.ReplaceAllString(fmt.Sprintf("%s - %s.lss", lss.Run.GameName, lss.Run.CategoryName), "")
-	filePath := filepath.Join(filepath.Dir(origFile), fileName)
+	f := file.File{Dir: origFile.Dir, Name: newFileName, Extension: origFile.Extension}
 
-	err = ioutil.WriteFile(filePath, data, 0644)
+	err = f.Write(data, 0644)
 	if err != nil {
 		return err
 	}
