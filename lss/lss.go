@@ -1,4 +1,4 @@
-package main
+package lss
 
 import (
 	"encoding/xml"
@@ -76,6 +76,7 @@ type CDATA struct {
 	Cdata string `xml:",cdata"`
 }
 
+// Run is a representation of xml data
 type Run struct {
 	Version      string `xml:"version,attr"`
 	GameIcon     CDATA

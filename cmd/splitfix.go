@@ -6,6 +6,8 @@ import (
 	"log"
 	"sort"
 	"time"
+
+	"github.com/jfoster/splitfix/lss"
 )
 
 const (
@@ -18,21 +20,21 @@ func main() {
 		log.Fatalln(fmt.Errorf("Incorrect number of arguments. Expected: 1 Recieved: %d", flag.NArg()))
 	}
 
-	lss, err := NewLSSFile(flag.Args()[0])
+	splits, err := lss.NewLSSFile(flag.Args()[0])
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	sort.SliceStable(lss.Run.AttemptHistory, func(a, b int) bool {
-		timeA, _ := time.Parse(layout, lss.Run.AttemptHistory[a].Started)
-		timeB, _ := time.Parse(layout, lss.Run.AttemptHistory[b].Started)
+	sort.SliceStable(splits.Run.AttemptHistory, func(a, b int) bool {
+		timeA, _ := time.Parse(layout, splits.Run.AttemptHistory[a].Started)
+		timeB, _ := time.Parse(layout, splits.Run.AttemptHistory[b].Started)
 		return timeA.Before(timeB)
 	})
 
-	var attemptHistory = lss.Run.AttemptHistory
+	var attemptHistory = splits.Run.AttemptHistory
 
-	for s, segment := range lss.Run.Segments {
-		var times = lss.Run.Segments[s].Times
+	for s, segment := range splits.Run.Segments {
+		var times = splits.Run.Segments[s].Times
 
 		// sort times by ID value
 		sort.SliceStable(times, func(a, b int) bool {
@@ -63,16 +65,16 @@ func main() {
 			}
 		}
 
-		lss.Run.Segments[s].Times = times
+		splits.Run.Segments[s].Times = times
 	}
 
-	for a, attempt := range lss.Run.AttemptHistory {
+	for a, attempt := range splits.Run.AttemptHistory {
 		attemptNum := int64(a) + 1
 
-		for s, segment := range lss.Run.Segments {
+		for s, segment := range splits.Run.Segments {
 			for t, time := range segment.Times {
 				if time.ID == attempt.ID {
-					lss.Run.Segments[s].Times[t].ID = attemptNum
+					splits.Run.Segments[s].Times[t].ID = attemptNum
 				}
 			}
 		}
@@ -80,10 +82,10 @@ func main() {
 		attemptHistory[a].ID = attemptNum
 	}
 
-	lss.Run.AttemptCount = attemptHistory[len(attemptHistory)-1].ID
-	lss.Run.AttemptHistory = attemptHistory
+	splits.Run.AttemptCount = attemptHistory[len(attemptHistory)-1].ID
+	splits.Run.AttemptHistory = attemptHistory
 
-	err = lss.WriteFile()
+	err = splits.WriteFile()
 	if err != nil {
 		log.Fatal(err)
 	}

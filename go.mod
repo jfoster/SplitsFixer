@@ -1,3 +1,3 @@
-module github.com/jfoster/SplitsFixer
+module github.com/jfoster/splitfix
 
 go 1.12
